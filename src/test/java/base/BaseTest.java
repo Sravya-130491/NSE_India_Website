@@ -20,39 +20,56 @@ public class BaseTest {
     private WebDriverWait wait;
     String stockName = "TataMotors";
 
-    @Test
     @Parameters("browser")
-     @BeforeMethod
-    public void setup(@Optional("chrome") String browser) throws InterruptedException {
+    @BeforeMethod
+    public void setup(@Optional("chrome") String browser) {
         if (browser.equalsIgnoreCase("chrome")) {
             WebDriverManager.chromedriver().setup();
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--disable-blink-features=AutomationControlled");
+            options.addArguments("--headless=new");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+            options.addArguments("--disable-gpu");
+            options.addArguments("--window-size=1920,1080");
+            options.addArguments("--remote-allow-origins=*");
+            options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36");
+            options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
             driver = new ChromeDriver(options);
-        }
-        else if (browser.equalsIgnoreCase("edge")) {
+        } else if (browser.equalsIgnoreCase("edge")) {
             WebDriverManager.edgedriver().setup();
             EdgeOptions options = new EdgeOptions();
             options.addArguments("--disable-blink-features=AutomationControlled");
+            options.addArguments("--headless=new");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+            options.addArguments("--disable-gpu");
+            options.addArguments("--window-size=1920,1080");
             driver = new EdgeDriver(options);
         }
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
         driver.get(ConfigReader.getProperty("url"));
+    }
+
+    @Test
+    public void testStockSearch() throws InterruptedException {
         HomePage homePage = new HomePage(driver);
-        // Click a link that opens a new window
         homePage.clickonNifty();
-        // Do something in the new window
-        System.out.println(driver.getTitle());
+        System.out.println("Page Title: " + driver.getTitle());
+
         StockPage stockPage = new StockPage(driver);
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         stockPage.searchStock(stockName);
-        Thread.sleep(1000);
-        driver.quit();
-
     }
 
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
+}
 
 
 

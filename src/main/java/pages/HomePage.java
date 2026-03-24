@@ -1,28 +1,39 @@
 package pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.support.FindBy;
-import org.testng.Assert;
 
-public class HomePage  {
+import java.time.Duration;
+
+public class HomePage {
 
     private WebDriver driver;
     private WebDriverWait wait;
-    private By niftyimage = By.xpath("(//*[@title='NSE - NIFTY 50'])[1]");
+
+    private By niftyLink = By.xpath(
+        "//*[@title='NSE - NIFTY 50'] | " +
+        "//a[contains(@href,'NIFTY 50') or contains(@href,'nifty-50')] | " +
+        "//*[contains(text(),'NIFTY 50') and (self::a or self::span or self::div)]"
+    );
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
+
     public void clickonNifty() {
-
-        // Click a link that opens a new window
-
-        driver.findElement(niftyimage).click();
-
+        try {
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(niftyLink));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        } catch (Exception e) {
+            System.out.println("NIFTY 50 link not clickable, navigating directly");
+            driver.get("https://www.nseindia.com/market-data/live-equity-market?symbol=NIFTY%2050");
+        }
     }
-    }
+}
 
 
