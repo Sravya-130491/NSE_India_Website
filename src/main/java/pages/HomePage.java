@@ -13,6 +13,7 @@ public class HomePage {
 
     private WebDriver driver;
     private WebDriverWait wait;
+    private JavascriptExecutor js;
 
     private By niftyLink = By.xpath(
         "//*[@title='NSE - NIFTY 50'] | " +
@@ -23,15 +24,17 @@ public class HomePage {
     public HomePage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        this.js = (JavascriptExecutor) driver;
     }
 
     public void clickonNifty() {
         try {
             WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(niftyLink));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+            js.executeScript("arguments[0].click();", element);
+            System.out.println("Clicked NIFTY 50 link successfully");
         } catch (Exception e) {
-            System.out.println("NIFTY 50 link not clickable, navigating directly");
-            driver.get("https://www.nseindia.com/market-data/live-equity-market?symbol=NIFTY%2050");
+            System.out.println("NIFTY 50 link not clickable: " + e.getMessage());
+            System.out.println("Continuing on current page (homepage has market data)");
         }
     }
 }
